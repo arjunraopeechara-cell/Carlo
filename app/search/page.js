@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
+import EbayRow from "@/components/EbayRow";
 import ListingCard from "@/components/ListingCard";
 import { CreditBands, useCarlo } from "@/components/Providers";
 import { CATALOG, LISTINGS, PLURAL, FUELNAME, THIS_YEAR, makes } from "@/lib/cars";
@@ -82,6 +83,7 @@ export default function Search() {
             {active.map(([k, label]) => <button key={k} type="button" aria-label={`Remove ${label}`} onClick={() => set(k, SV[k])}>{label} ✕</button>)}
             {active.length > 1 && <button type="button" className="link-btn" onClick={() => go({ sort: sv.sort })}>Clear all</button>}
           </div>
+          <EbayRow make={sv.make} model={sv.model} max={max} year={sv.year} />
           <div className="listing-grid">{list.slice(0, shown).map((l) => <ListingCard key={l.id} l={l} />)}</div>
           {!list.length && <div className="empty"><b>No cars match these filters.</b><p>Try a higher budget or remove a filter.</p><button type="button" className="ghost" onClick={() => go({ sort: sv.sort })}>Clear filters</button></div>}
           {list.length > shown && <div className="more-row"><button type="button" className="ghost" onClick={() => setShown(shown + 24)}>Show {Math.min(24, list.length - shown)} more</button></div>}

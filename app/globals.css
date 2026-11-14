@@ -435,3 +435,11 @@ button.signin:hover { text-decoration: underline; text-underline-offset: 4px; }
 .signin-box input { min-height: 54px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
 .signin-box form[method] { margin-top: 14px; justify-items: center; }
 @media (max-width: 760px) { .links.open .signin { display: block; padding: 12px 0; text-align: left; } }
+
+/* Live eBay listings on the search page */
+.ebay { display: grid; gap: 6px; margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--line); }
+.ebay h2 { font-size: 1.4rem; }
+.ebay .listing-grid { margin-top: 10px; }
+.l-img.photo { padding: 0; aspect-ratio: 4 / 3; }
+.l-img.photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ebay .l-link { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
