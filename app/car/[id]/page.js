@@ -76,6 +76,7 @@ export default function CarPage() {
           <div className="btn-row">
             <Link className="go" href={ask(`I'm looking at a ${t} listed at ${fmt(l.price)} with ${miles(l.miles)} miles. What should I know?`)}>Ask Carlo about this car</Link>
             <button type="button" className="ghost" aria-pressed={saved} onClick={() => toggleShort(l.id)}>{saved ? "On your shortlist" : "Add to shortlist"}</button>
+            <Link className="ghost" href={`/loan?price=${l.price}&car=${encodeURIComponent(t)}`}>Get a loan for this car</Link>
             <button type="button" className="ghost" onClick={() => toast("Contacting dealers isn't built yet.")}>Contact the dealer</button>
           </div>
           <div className="f-group"><p className="f-label">Or ask Carlo</p><div className="ask-chips">

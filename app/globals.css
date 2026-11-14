@@ -446,3 +446,8 @@ button.signin:hover { text-decoration: underline; text-underline-offset: 4px; }
 
 .msg.link { justify-self: start; background: var(--blue); color: var(--on-blue); font-weight: 700; text-decoration: none; }
 .msg.link:hover { background: var(--blue-hover); }
+
+/* Get a loan */
+a.ghost { display: grid; place-items: center; text-decoration: none; text-align: center; }
+.way strong .lender { min-height: 44px; padding: 0 16px; font: 700 .95rem/1.2 var(--body, inherit); letter-spacing: 0; white-space: nowrap; }
+@media (max-width: 760px) { .way:has(.lender) { grid-template-columns: minmax(0, 1fr); } .way:has(.lender) strong { grid-row: auto; grid-column: 1; text-align: left; margin-top: 8px; justify-self: start; } }

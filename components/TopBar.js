@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useCarlo } from "./Providers";
 
-const LINKS = [["/search", "Used cars"], ["/sell", "Sell your car"], ["/#brands", "Brands"], ["/guide", "Loan guide"], ["/shortlist", "Shortlist"]];
+const LINKS = [["/search", "Used cars"], ["/sell", "Sell your car"], ["/#brands", "Brands"], ["/loan", "Get a loan"], ["/shortlist", "Shortlist"]];
 
 export default function TopBar() {
   const path = usePathname();
