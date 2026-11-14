@@ -402,3 +402,24 @@ h1.cv-title, h1.cp-title { color: var(--ink); font-size: clamp(1.7rem, 3vw, 2.2r
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; } }
 button.signin { padding: 0; border: 0; background: none; font-weight: 600; cursor: pointer; }
 button.signin:hover { text-decoration: underline; text-underline-offset: 4px; }
+
+/* Safety and recalls on the car page */
+.stats.stars { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.stars .stat b { color: var(--blue); font-size: 1.25rem; letter-spacing: 1px; white-space: nowrap; }
+.stars .stat b i { color: var(--line); font-style: normal; }
+.stars .stat b.none { color: var(--muted); font: 600 1rem var(--body); letter-spacing: 0; }
+.cv-sec h3 { margin-top: 6px; font-size: 1.15rem; }
+.recalls { display: grid; }
+.recalls details { border-top: 1px solid var(--line); }
+.recalls details:last-child { border-bottom: 1px solid var(--line); }
+.recalls summary { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; min-height: 52px; padding: 10px 0; cursor: pointer; }
+.recalls summary > span:last-child { margin-left: auto; color: var(--muted); font-size: .92rem; }
+.recalls details p { margin-bottom: 12px; color: var(--muted); }
+.recalls details p b { color: var(--ink); }
+.tag.urgent { margin: 0; background: #FBE4DF; color: #A32212 !important; }
+.show-all { justify-self: start; }
+@media (max-width: 760px) { .stats.stars { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.recalls summary { list-style: none; }
+.recalls summary::-webkit-details-marker { display: none; }
+.recalls summary::before { content: "+"; width: 14px; color: var(--blue); font-weight: 800; font-size: 1.2rem; }
+.recalls details[open] summary::before { content: "−"; }

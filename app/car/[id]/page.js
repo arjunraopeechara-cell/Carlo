@@ -4,6 +4,7 @@ import { useParams } from "next/navigation";
 import { useState } from "react";
 import Car from "@/components/Car";
 import ListingCard from "@/components/ListingCard";
+import Safety from "@/components/Safety";
 import { CreditBands, useCarlo } from "@/components/Providers";
 import { LISTINGS, byId, SHAPE, FUELNAME, titleOf, searchHref } from "@/lib/cars";
 import { perDollar, financed, fmt, miles, TERM, TERMS, DOWN } from "@/lib/loan";
@@ -38,12 +39,13 @@ export default function CarPage() {
             <h2>Key details</h2>
             <dl className="specs">{specs.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
           </section>
+          <Safety l={l} />
           <section className="cv-sec">
             <h2>Before you buy this car</h2>
             <ol className="steps-list">
               <li><div><b>Get the out-the-door price in writing.</b><p>It's the total you pay, with tax, fees and any add-ons included.</p></div></li>
               <li><div><b>Read the vehicle history report.</b><p>Look for accidents, title problems and how many owners it has had.</p></div></li>
-              <li><div><b>Check for open recalls.</b><p>Enter the VIN at nhtsa.gov/recalls. Recall repairs are free at a dealer for that brand.</p></div></li>
+              <li><div><b>Check this car for open recalls.</b><p>The list above is for the model. Enter this car's VIN at nhtsa.gov/recalls to see what still needs fixing.</p></div></li>
               <li><div><b>Pay for an independent inspection.</b><p>A mechanic you choose can spot problems the listing doesn't show.</p></div></li>
               <li><div><b>Bring your own loan offer.</b><p>A pre-approval from a bank or credit union lets you compare the dealer's rate.</p></div></li>
             </ol>
