@@ -13,7 +13,7 @@ const ask = (q) => "/carlo?q=" + encodeURIComponent(q);
 
 export default function CarPage() {
   const l = byId[useParams().id];
-  const { apr, short, toggleShort, toast } = useCarlo();
+  const { apr, short, toggleShort } = useCarlo();
   const [down, setDown] = useState(DOWN);
   const [term, setTerm] = useState(TERM);
   if (!l) return (
@@ -77,7 +77,6 @@ export default function CarPage() {
             <Link className="go" href={ask(`I'm looking at a ${t} listed at ${fmt(l.price)} with ${miles(l.miles)} miles. What should I know?`)}>Ask Carlo about this car</Link>
             <button type="button" className="ghost" aria-pressed={saved} onClick={() => toggleShort(l.id)}>{saved ? "On your shortlist" : "Add to shortlist"}</button>
             <Link className="ghost" href={`/loan?price=${l.price}&car=${encodeURIComponent(t)}`}>Get a loan for this car</Link>
-            <button type="button" className="ghost" onClick={() => toast("Contacting dealers isn't built yet.")}>Contact the dealer</button>
           </div>
           <div className="f-group"><p className="f-label">Or ask Carlo</p><div className="ask-chips">
             {[`Is ${fmt(l.price)} a fair price for this ${l.model}?`, `What should I check on a ${l.year} ${l.model}?`, `Help me negotiate on this ${l.model}.`].map((q) => <Link key={q} className="ask-chip" href={ask(q)}>{q}</Link>)}
