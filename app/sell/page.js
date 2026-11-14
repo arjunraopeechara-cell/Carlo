@@ -17,7 +17,7 @@ export default function Sell() {
   const rows = CATALOG[make], row = rows.find((r) => r[0] === modelRaw) || rows[0], model = row[0];
   const years = []; for (let y = Math.min(row[2], THIS_YEAR); y >= Math.max(row[1], 2008); y--) years.push(y);
   const year = years.includes(yearRaw) ? yearRaw : years[0];
-  const v = estValue(make, row[3], row[5], row[4].includes("G") ? "G" : row[4][0], Math.max(0.5, THIS_YEAR - year), miles) * CONDS[cond][1];
+  const v = estValue(make, row[3], row[5], row[4].includes("G") ? "G" : row[4][0], Math.max(0.5, THIS_YEAR - year), miles, row[6]) * CONDS[cond][1];
 
   return (
     <section className="in page">
