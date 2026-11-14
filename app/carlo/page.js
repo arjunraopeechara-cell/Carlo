@@ -2,23 +2,32 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import ChatLog from "@/components/ChatLog";
-import { CHAT, PREVIEW } from "@/lib/chat";
+import { useCarlo } from "@/components/Providers";
+import { reply } from "@/lib/carlo";
+import { CHAT } from "@/lib/chat";
 
 const TOPICS = [["How much car can I afford?"], ["I'm at the dealership right now. What should I say?", "I'm at the dealership right now"], ["Can you check this quote from a dealer?", "Check a dealer's quote"],
   ["Can I practice negotiating with you?", "Practice negotiating"], ["Should I get pre-approved before I go?", "Should I get pre-approved?"], ["Which add-ons can I say no to?"]];
 
 export default function CarloPage() {
   const q = useSearchParams().get("q") || "";
-  // No conversation yet shows the example one.
-  const [log, setLog] = useState(q ? [["me", q], ["him", PREVIEW]] : null);
+  const { apr, band, setCredit } = useCarlo();
+  // No conversation yet shows the example one. chat holds the messages and where Carlo is in a flow.
+  const step = (chat, msg) => {
+    const r = reply(chat.state, msg, { apr, band });
+    return { log: [...chat.log, ["me", msg], ...r.msgs], state: r.state, credit: r.credit };
+  };
+  const [chat, setChat] = useState(() => q ? step({ log: [] }, q) : null);
   const [text, setText] = useState("");
   const logEl = useRef(), input = useRef();
+  const log = chat?.log;
   useEffect(() => { if (log) logEl.current.scrollTop = logEl.current.scrollHeight; }, [log]);
+  useEffect(() => { if (chat?.credit != null) setCredit(chat.credit); }, [chat, setCredit]);
 
   function send(msg) {
     msg = msg.trim();
     if (!msg) return input.current.focus();
-    setLog([...(log || []), ["me", msg], ["him", PREVIEW]]);
+    setChat(step(chat || { log: [] }, msg));
     setText("");
   }
 
@@ -39,7 +48,7 @@ export default function CarloPage() {
               onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(text); } }} />
             <button type="submit" aria-label="Send"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg></button>
           </form>
-          <p className="cp-note">Carlo is an AI guide and can get things wrong. Check the numbers before you sign, and never share your Social Security number or card details.</p>
+          <p className="cp-note">Carlo works from set scripts and loan maths for now, and can get things wrong. Check the numbers before you sign, and never share your Social Security number or card details.</p>
         </section>
       </div>
     </section>
