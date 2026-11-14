@@ -1,36 +1,23 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Carlo
 
-## Getting Started
-
-First, run the development server:
+A car-buying guide and marketplace for first-time buyers in the US. This is the Next.js port of the prototype.
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev    # http://localhost:3000
+npm test       # loan maths checks
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Where things are
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- `app/` has one folder per page: home, `search`, `car/[id]`, `brand/[slug]`, `carlo`, `guide`, `sell`, `shortlist`.
+- `lib/loan.js` is the loan maths (payments, schedules, credit bands). `lib/loan.test.mjs` checks it.
+- `lib/cars.js` is the car catalogue (`catalog.json`, from EPA fuel economy data) and the example listings built from it.
+- `components/` holds the shared parts: top bar, car drawings, listing cards, and the shared state (credit band, shortlist).
+- `app/globals.css` is the whole stylesheet.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Not real yet
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Listings: makes, models and years are real, but prices, mileage and locations are made up.
+- Carlo's replies are a fixed preview message.
+- Photos are drawings. Sign in and contacting dealers aren't built.
