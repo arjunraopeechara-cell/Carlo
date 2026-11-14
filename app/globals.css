@@ -423,3 +423,15 @@ button.signin:hover { text-decoration: underline; text-underline-offset: 4px; }
 .recalls summary::-webkit-details-marker { display: none; }
 .recalls summary::before { content: "+"; width: 14px; color: var(--blue); font-weight: 800; font-size: 1.2rem; }
 .recalls details[open] summary::before { content: "−"; }
+
+/* Sign in */
+.links .signin { display: none; }
+.signin-box { width: min(420px, calc(100vw - 32px)); padding: 24px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); color: var(--ink); }
+.signin-box::backdrop { background: rgba(22, 35, 63, .45); }
+.signin-box form, .signin-box label { display: grid; gap: 12px; }
+.signin-box h2 { font-size: 1.5rem; }
+.signin-box p { color: var(--muted); margin-bottom: 12px; }
+.signin-box label { gap: 6px; font-weight: 700; }
+.signin-box input { min-height: 54px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg); }
+.signin-box form[method] { margin-top: 14px; justify-items: center; }
+@media (max-width: 760px) { .links.open .signin { display: block; padding: 12px 0; text-align: left; } }

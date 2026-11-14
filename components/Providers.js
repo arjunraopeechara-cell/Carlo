@@ -1,5 +1,6 @@
 "use client";
-import { createContext, useCallback, useContext, useRef, useState, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { supabase } from "@/lib/supabase";
 import { CREDIT } from "@/lib/loan";
 
 const Ctx = createContext(null);
@@ -14,10 +15,28 @@ function subscribe(fn) {
   return () => { listeners.delete(fn); removeEventListener("storage", load); };
 }
 function getSaved() { if (!saved) load(); return saved; }
-function toggleShort(id) {
-  saved = getSaved().includes(id) ? saved.filter((x) => x !== id) : [...saved, id];
+function store(list) {
+  saved = list;
   try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch {}
   listeners.forEach((fn) => fn());
+}
+// Signed in, every change also goes to the account. The database fills in whose row it is.
+let uid = null;
+const report = ({ error }) => error && console.error(error);
+function toggleShort(car_id) {
+  const had = getSaved().includes(car_id);
+  store(had ? saved.filter((x) => x !== car_id) : [...saved, car_id]);
+  if (!uid) return;
+  const rows = supabase.from("shortlist");
+  (had ? rows.delete().eq("car_id", car_id) : rows.upsert({ car_id }, { ignoreDuplicates: true })).then(report);
+}
+// On sign-in: cars saved in this browser join the account, and the account's cars show up here.
+async function sync() {
+  const { data, error } = await supabase.from("shortlist").select("car_id");
+  if (error) return console.error(error);
+  const remote = data.map((r) => r.car_id), extra = getSaved().filter((id) => !remote.includes(id));
+  if (extra.length) report(await supabase.from("shortlist").upsert(extra.map((car_id) => ({ car_id })), { ignoreDuplicates: true }));
+  store([...new Set([...remote, ...getSaved()])]);
 }
 export const useCarlo = () => useContext(Ctx);
 
@@ -28,6 +47,20 @@ export default function Providers({ children }) {
   const [toastMsg, setToastMsg] = useState("");
   const [toastOn, setToastOn] = useState(false);
   const timer = useRef();
+  const [email, setEmail] = useState("");
+
+  useEffect(() => {
+    if (!supabase) return;
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
+      const id = session?.user.id ?? null;
+      setEmail(session?.user.email ?? "");
+      // Signing out clears the list here, so a shared computer doesn't keep it.
+      if (event === "SIGNED_OUT") store([]);
+      else if (id && id !== uid) setTimeout(sync); // Supabase calls must wait until this callback returns
+      uid = id;
+    });
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   const toast = useCallback((msg) => {
     setToastMsg(msg); setToastOn(true);
@@ -36,7 +69,7 @@ export default function Providers({ children }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ credit, setCredit, apr: CREDIT[credit][1], band: CREDIT[credit][0], short, toggleShort, toast }}>
+    <Ctx.Provider value={{ credit, setCredit, apr: CREDIT[credit][1], band: CREDIT[credit][0], short, toggleShort, toast, email }}>
       {children}
       <div className={"toast" + (toastOn ? " show" : "")} role="status">{toastMsg}</div>
     </Ctx.Provider>
