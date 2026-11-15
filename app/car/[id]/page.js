@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Car from "@/components/Car";
 import ListingCard from "@/components/ListingCard";
 import Safety from "@/components/Safety";
@@ -11,35 +11,56 @@ import { perDollar, financed, fmt, miles, TERM, TERMS, DOWN } from "@/lib/loan";
 
 const ask = (q) => "/carlo?q=" + encodeURIComponent(q);
 
+// A real car, fetched from eBay through Carlo's server. null while loading, { gone: true } if it has sold or the link is wrong.
+function useEbay(id) {
+  const [item, setItem] = useState(null);
+  useEffect(() => {
+    if (!id) return;
+    setItem(null);
+    fetch("/api/ebay?id=" + id).then((r) => r.json()).then((d) => setItem(d.item || { gone: true })).catch(() => setItem({ gone: true }));
+  }, [id]);
+  return item;
+}
+
 export default function CarPage() {
-  const l = byId[useParams().id];
+  const { id } = useParams(), real = id.startsWith("ebay-");
+  const item = useEbay(real ? id : ""), l = real ? (item?.id ? item : null) : byId[id];
+  const [photo, setPhoto] = useState(0);
   const { apr, short, toggleShort } = useCarlo();
   const [down, setDown] = useState(DOWN);
   const [term, setTerm] = useState(TERM);
+  if (real && !item) return <section className="in page"><p className="muted">Loading this car…</p></section>;
   if (!l) return (
     <section className="in page"><h1>Car not found</h1><div className="empty"><b>This listing isn't here any more.</b><p>It may have been sold or the link is wrong.</p><Link className="go" href="/search">Used cars</Link></div></section>
   );
 
-  const t = titleOf(l), efficiency = l.mpg ? `${l.mpg} ${l.fuel === "E" ? "MPGe" : "MPG"} combined` : "Not listed";
-  const specs = [["Year", l.year], ["Mileage", miles(l.miles) + " miles"], ["Body type", l.kind], ["Size", l.size || "Not listed"], ["Fuel", FUELNAME[l.fuel]],
+  const t = real ? l.title : titleOf(l), efficiency = l.mpg ? `${l.mpg} ${l.fuel === "E" ? "MPGe" : "MPG"} combined` : "Not listed";
+  const specs = real ? [["Year", l.year], ["Mileage", l.miles ? miles(l.miles) + " miles" : ""], ["Body type", l.body], ["Trim", l.trim], ["Fuel", l.fuelName], ["Transmission", l.gearbox], ["Engine", l.engine],
+    ["Drive", l.drive], ["Colour", l.colour], ["Title", l.titleStatus], ["Sold by", l.soldBy], ["eBay seller", l.seller], ["Location", l.where], ["VIN", l.vin]].filter(([, v]) => v)
+    : [["Year", l.year], ["Mileage", miles(l.miles) + " miles"], ["Body type", l.kind], ["Size", l.size || "Not listed"], ["Fuel", FUELNAME[l.fuel]],
     [l.fuel === "E" ? "Efficiency" : "Fuel economy", efficiency], ["Drive", l.drive || "Not listed"], ["Colour", l.colour], ["Location", `${l.away} miles away`]];
   const P = financed(l.price, Math.min(down, l.price)), pmt = P / perDollar(apr, term), interest = pmt * term - P;
-  const similar = LISTINGS.filter((x) => x.id !== l.id && x.kind === l.kind && Math.abs(x.price - l.price) < l.price * 0.2).sort((a, b) => a.rank - b.rank).slice(0, 4);
+  const similar = real ? [] : LISTINGS.filter((x) => x.id !== l.id && x.kind === l.kind && Math.abs(x.price - l.price) < l.price * 0.2).sort((a, b) => a.rank - b.rank).slice(0, 4);
   const saved = short.includes(l.id);
 
   return (
     <section className="in page">
       <nav className="crumbs" aria-label="Breadcrumb">
-        <Link href="/search">Used cars</Link><span aria-hidden="true">/</span><Link href={searchHref({ make: l.make })}>{l.make}</Link><span aria-hidden="true">/</span><Link href={searchHref({ make: l.make, model: l.model })}>{l.model}</Link>
+        <Link href="/search">Used cars</Link>{l.make && <><span aria-hidden="true">/</span><Link href={searchHref({ make: l.make })}>{l.make}</Link></>}{l.make && l.model && <><span aria-hidden="true">/</span><Link href={searchHref({ make: l.make, model: l.model })}>{l.model}</Link></>}
       </nav>
       <div className="cv-grid">
         <div className="cv-main">
-          <div className="cv-photo"><Car type={SHAPE[l.kind]} color={l.paint} /><span className="badge">Photos coming soon</span></div>
+          {real ? <div className="cv-gallery">
+            {l.imgs[photo] && <img className="cv-shot" src={l.imgs[photo]} alt={`${t}, photo ${photo + 1} of ${l.imgs.length}`} />}
+            {l.imgs.length > 1 && <div className="cv-thumbs">{l.imgs.map((src, n) => <button key={src} type="button" aria-pressed={n === photo} aria-label={`Photo ${n + 1}`} onClick={() => setPhoto(n)}><img src={src.replace("s-l800.", "s-l140.")} alt="" loading="lazy" /></button>)}</div>}
+          </div>
+            : <div className="cv-photo"><Car type={SHAPE[l.kind]} color={l.paint} /><span className="badge">Photos coming soon</span></div>}
           <section className="cv-sec">
             <h2>Key details</h2>
             <dl className="specs">{specs.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
           </section>
-          <Safety l={l} />
+          {real && l.about && <section className="cv-sec"><h2>From the seller</h2><p className="muted">{l.about}</p></section>}
+          {l.make && l.model && l.year > 0 && <Safety l={l} />}
           <section className="cv-sec">
             <h2>Before you buy this car</h2>
             <ol className="steps-list">
@@ -52,10 +73,11 @@ export default function CarPage() {
           </section>
         </div>
         <aside className="cv-buy card">
-          <p className="eyebrow">Example listing</p>
+          <p className="eyebrow">{real ? "For sale on eBay Motors" : "Example listing"}</p>
           <h1 className="cv-title">{t}</h1>
-          <p className="muted">{[miles(l.miles) + " miles", l.drive, FUELNAME[l.fuel], `${l.away} miles away`].filter(Boolean).join(" · ")}</p>
+          <p className="muted">{[l.miles ? miles(l.miles) + " miles" : "", l.drive, FUELNAME[l.fuel], real ? l.where : `${l.away} miles away`].filter(Boolean).join(" · ")}</p>
           <p className="cv-price">{fmt(l.price)}</p>
+          {real && <p className="fine">{l.auction ? "This is an auction. The price shown is the current bid, and the final price will be higher. " : ""}Carlo has not checked this car. The price and details come from the seller's eBay listing.</p>}
           <div className="calc">
             <p className="f-label">Estimate your payment</p>
             <label className="field">Down payment<span className="money"><span aria-hidden="true">$</span>
@@ -74,12 +96,13 @@ export default function CarPage() {
             <Link className="link" href={`/guide?price=${l.price}&down=${down}&term=${term}`}>See how this loan works</Link>
           </div>
           <div className="btn-row">
-            <Link className="go" href={ask(`I'm looking at a ${t} listed at ${fmt(l.price)} with ${miles(l.miles)} miles. What should I know?`)}>Ask Carlo about this car</Link>
+            {real && <a className="go" href={l.url} target="_blank" rel="noopener noreferrer">See this car on eBay</a>}
+            <Link className={real ? "ghost" : "go"} href={ask(`I'm looking at a ${t} listed at ${fmt(l.price)}${l.miles ? ` with ${miles(l.miles)} miles` : ""}. What should I know?`)}>Ask Carlo about this car</Link>
             <button type="button" className="ghost" aria-pressed={saved} onClick={() => toggleShort(l.id)}>{saved ? "On your shortlist" : "Add to shortlist"}</button>
             <Link className="ghost" href={`/loan?price=${l.price}&car=${encodeURIComponent(t)}`}>Get a loan for this car</Link>
           </div>
           <div className="f-group"><p className="f-label">Or ask Carlo</p><div className="ask-chips">
-            {[`Is ${fmt(l.price)} a fair price for this ${l.model}?`, `What should I check on a ${l.year} ${l.model}?`, `Help me negotiate on this ${l.model}.`].map((q) => <Link key={q} className="ask-chip" href={ask(q)}>{q}</Link>)}
+            {[`Is ${fmt(l.price)} a fair price for this ${l.model || "car"}?`, `What should I check on a ${l.year || "used"} ${l.model || "car"}?`, `Help me negotiate on this ${l.model || "car"}.`].map((q) => <Link key={q} className="ask-chip" href={ask(q)}>{q}</Link>)}
           </div></div>
         </aside>
       </div>

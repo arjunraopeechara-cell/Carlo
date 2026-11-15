@@ -8,7 +8,7 @@ import { fmt, payment, miles, TERM } from "@/lib/loan";
 export function Heart({ l }) {
   const { short, toggleShort } = useCarlo();
   return (
-    <button type="button" className="heart" aria-pressed={short.includes(l.id)} aria-label={`Add ${titleOf(l)} to shortlist`} onClick={() => toggleShort(l.id)}>
+    <button type="button" className="heart" aria-pressed={short.includes(l.id)} aria-label={`Add ${l.title || titleOf(l)} to shortlist`} onClick={() => toggleShort(l.id)}>
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20s-7-4.4-9.2-8.6C1.2 8.2 3.1 4.5 6.6 4.5c2 0 3.3 1.1 4.1 2.3h2.6c.8-1.2 2.1-2.3 4.1-2.3 3.5 0 5.4 3.7 3.8 6.9C19 15.6 12 20 12 20z" strokeLinejoin="round" /></svg>
     </button>
   );

@@ -1,5 +1,5 @@
 import { connection } from "next/server";
-import { searchUrl, tidy } from "@/lib/ebay";
+import { searchUrl, itemUrl, tidy, tidyItem } from "@/lib/ebay";
 
 // The eBay keys stay on the server. One app token lasts about two hours, so it is kept between requests.
 let token = "", expires = 0;
@@ -22,19 +22,18 @@ export async function GET(request) {
   if (!id || !secret) return Response.json({ off: true, items: [] });
   const p = new URL(request.url).searchParams;
   const clean = (k) => (p.get(k) || "").replace(/[^\w .&-]/g, "").slice(0, 40);
+  const num = (k) => Number(p.get(k)) || 0;
+  // Vercel keeps each answer for ten minutes, which stays well inside eBay's daily call limit.
+  const cache = { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } };
   try {
-    if (p.get("debug")) { // TEMP: remove before finishing
-      const r = await fetch("https://api.ebay.com/buy/browse/v1/" + p.get("debug"), { headers: { Authorization: "Bearer " + (await getToken(id, secret)), "X-EBAY-C-MARKETPLACE_ID": "EBAY_MOTORS_US" } });
-      return new Response(await r.text(), { status: r.status, headers: { "Content-Type": "application/json" } });
-    }
-    const res = await fetch(searchUrl({ make: clean("make"), model: clean("model"), max: Number(p.get("max")) || 0 }), {
-      headers: { Authorization: "Bearer " + (await getToken(id, secret)), "X-EBAY-C-MARKETPLACE_ID": "EBAY_MOTORS_US" },
-    });
+    const one = /^ebay-\d{6,20}$/.test(p.get("id") || "") && p.get("id");
+    const url = one ? itemUrl(one) : searchUrl({ make: clean("make"), model: clean("model"), max: num("max"), type: clean("type"), fuel: clean("fuel"), miles: num("miles"), year: num("year"), sort: clean("sort") });
+    const res = await fetch(url, { headers: { Authorization: "Bearer " + (await getToken(id, secret)), "X-EBAY-C-MARKETPLACE_ID": "EBAY_MOTORS_US" } });
     const data = await res.json();
+    if (one && res.status === 404) return Response.json({ gone: true }, { status: 404 });
     if (!res.ok) throw new Error(data.errors?.[0]?.longMessage || data.errors?.[0]?.message || "eBay error " + res.status);
-    const items = (data.itemSummaries || []).map(tidy).filter((i) => i.price && i.url);
-    // Vercel keeps each search for ten minutes, which stays well inside eBay's daily call limit.
-    return Response.json({ items }, { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } });
+    if (one) return Response.json({ item: tidyItem(data) }, cache);
+    return Response.json({ items: (data.itemSummaries || []).map(tidy).filter((i) => i.price && i.img), total: data.total || 0 }, cache);
   } catch (e) {
     return Response.json({ error: e.message, items: [] }, { status: 502 });
   }
