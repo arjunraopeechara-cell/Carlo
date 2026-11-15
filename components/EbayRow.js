@@ -14,7 +14,8 @@ export default function EbayRow({ make, model, max, year }) {
     return () => stop.abort();
   }, [make, model, max]);
 
-  const list = items.filter((i) => !year || i.year >= year).slice(0, 6);
+  // ponytail: classics crowd out everyday cars, so anything before 2005 is hidden unless a year is picked. Filter by year at eBay if this wastes too many results.
+  const list = items.filter((i) => (i.year ? i.year >= (year || 2005) : !year)).slice(0, 6);
   if (!list.length) return null;
   return (
     <section className="ebay" aria-label="Live listings from eBay Motors">
@@ -28,6 +29,7 @@ export default function EbayRow({ make, model, max, year }) {
               <a className="l-link" href={i.url} target="_blank" rel="noopener noreferrer">{i.title}</a>
               <p className="l-price">{fmt(i.price)}</p>
               {i.auction ? <p className="l-pay">Current bid. The final price will be higher.</p>
+                : i.price < 5000 ? <p className="l-pay">Cars at this price are usually bought with cash.</p>
                 : <p className="l-pay"><b>{fmt(payment(i.price, apr))}/mo</b> est. · {apr}% APR · {TERM} mo</p>}
               <p className="l-away">{i.where}<span className="tag">On eBay</span></p>
             </div>
