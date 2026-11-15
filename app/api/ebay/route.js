@@ -18,7 +18,7 @@ async function getToken(id, secret) {
 
 export async function GET(request) {
   await connection(); // run on every request, never at build time
-  const id = process.env.EBAY_CLIENT_ID, secret = process.env.EBAY_CLIENT_SECRET;
+  const id = process.env.EBAY_CLIENT_ID?.trim(), secret = process.env.EBAY_CLIENT_SECRET?.trim(); // pasted keys often carry a stray space
   if (!id || !secret) return Response.json({ off: true, items: [] });
   const p = new URL(request.url).searchParams;
   const clean = (k) => (p.get(k) || "").replace(/[^\w .&-]/g, "").slice(0, 40);
