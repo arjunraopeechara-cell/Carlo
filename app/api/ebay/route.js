@@ -23,6 +23,10 @@ export async function GET(request) {
   const p = new URL(request.url).searchParams;
   const clean = (k) => (p.get(k) || "").replace(/[^\w .&-]/g, "").slice(0, 40);
   try {
+    if (p.get("debug")) { // TEMP: remove before finishing
+      const r = await fetch("https://api.ebay.com/buy/browse/v1/" + p.get("debug"), { headers: { Authorization: "Bearer " + (await getToken(id, secret)), "X-EBAY-C-MARKETPLACE_ID": "EBAY_MOTORS_US" } });
+      return new Response(await r.text(), { status: r.status, headers: { "Content-Type": "application/json" } });
+    }
     const res = await fetch(searchUrl({ make: clean("make"), model: clean("model"), max: Number(p.get("max")) || 0 }), {
       headers: { Authorization: "Bearer " + (await getToken(id, secret)), "X-EBAY-C-MARKETPLACE_ID": "EBAY_MOTORS_US" },
     });
