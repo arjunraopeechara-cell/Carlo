@@ -10,6 +10,8 @@ import { CATALOG, ALL, FEATURED, brands, makes, brandHref, yearsOf } from "@/lib
 import { CHAT, LOAN } from "@/lib/chat";
 import { perDollar, priceFor, fmt, round100, TERM, DOWN } from "@/lib/loan";
 
+const HOME_CARS = { miles: 100000, year: 2014 }; // sensible first cars for the home page, not the whole of eBay
+
 const BUDGETS = [[250, "sedan", "#2E6BD9"], [300, "hatch", "#E8782A"], [350, "suv", "#C9CCD2"], [450, "coupe", "#D42F3A"], [550, "truck", "#31465F"], [700, "suv", "#2B8C6B"]];
 // Each type counts the catalogue's models that match it.
 const TYPES = [["SUVs", "suv", "#C9CCD2", (m) => m[3] === "SUV", "type=SUV"], ["Cars", "sedan", "#C9CCD2", (m) => m[3] === "Car", "type=Car"], ["Trucks", "truck", "#C9CCD2", (m) => m[3] === "Truck", "type=Truck"],
@@ -155,7 +157,7 @@ export default function Home() {
       </header>
 
       <main>
-        <div className="sec in home-cars"><EbayRow max={20000} title="For sale now under $20,000" count={6} /></div>
+        <div className="sec in home-cars"><EbayRow sv={HOME_CARS} max={20000} title="For sale now under $20,000" count={6} /></div>
 
         <section className="sec in" id="carlo">
           <h2>A guide in your pocket, not a salesperson</h2>
