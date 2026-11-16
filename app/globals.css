@@ -469,3 +469,6 @@ a.ghost { display: grid; place-items: center; text-decoration: none; text-align:
 .ex-head { font-size: 1.4rem; }
 .ex-note { margin: 6px 0 14px; }
 @media (max-width: 900px) { .cv-gallery { order: 0; } }
+.home-cars:empty { display: none; }
+.home-cars .ebay, .brand-page .ebay { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+.brand-page .ebay { margin-top: 24px; }

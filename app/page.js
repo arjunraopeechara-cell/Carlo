@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Car from "@/components/Car";
 import ChatLog from "@/components/ChatLog";
+import EbayRow from "@/components/EbayRow";
 import { CreditBands, useCarlo } from "@/components/Providers";
 import { CATALOG, ALL, FEATURED, brands, makes, brandHref, yearsOf } from "@/lib/cars";
 import { CHAT, LOAN } from "@/lib/chat";
@@ -154,6 +155,8 @@ export default function Home() {
       </header>
 
       <main>
+        <div className="sec in home-cars"><EbayRow max={20000} title="For sale now under $20,000" count={6} /></div>
+
         <section className="sec in" id="carlo">
           <h2>A guide in your pocket, not a salesperson</h2>
           <dl className="steps">

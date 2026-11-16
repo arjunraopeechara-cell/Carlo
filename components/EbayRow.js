@@ -24,26 +24,26 @@ export function EbayCard({ i }) {
 }
 
 // Real cars for sale on eBay Motors that match the search filters. Shows nothing if eBay is off or has no matches.
-export default function EbayRow({ sv, max }) {
+export default function EbayRow({ sv = {}, max = 0, title = "For sale now", count = 12 }) {
   const [items, setItems] = useState([]);
-  const [shown, setShown] = useState(12);
-  const { make, model, type, fuel, miles, year, sort } = sv;
+  const [shown, setShown] = useState(count);
+  const { make = "", model = "", type = "", fuel = "", miles = 0, year = 0, sort = "" } = sv;
   useEffect(() => {
     const stop = new AbortController();
     const q = new URLSearchParams({ make, model, type, fuel, miles, year, sort, max: Number.isFinite(max) ? Math.round(max) : 0 });
-    setShown(12);
+    setShown(count);
     fetch("/api/ebay?" + q, { signal: stop.signal }).then((r) => r.json()).then((d) => setItems(d.items || [])).catch(() => {});
     return () => stop.abort();
-  }, [make, model, type, fuel, miles, year, sort, max]);
+  }, [make, model, type, fuel, miles, year, sort, max, count]);
 
   if (!items.length) return null;
   const list = sort === "newest" ? [...items].sort((a, b) => b.year - a.year) : items;
   return (
     <section className="ebay" aria-label="Real cars from eBay Motors">
-      <h2>For sale now</h2>
+      <h2>{title}</h2>
       <p className="fine">Real cars listed by sellers on eBay Motors, clean titles only. Carlo has not checked them.</p>
       <div className="listing-grid">{list.slice(0, shown).map((i) => <EbayCard key={i.id} i={i} />)}</div>
-      {list.length > shown && <div className="more-row"><button type="button" className="ghost" onClick={() => setShown(shown + 12)}>Show {Math.min(12, list.length - shown)} more</button></div>}
+      {list.length > shown && <div className="more-row"><button type="button" className="ghost" onClick={() => setShown(shown + count)}>Show {Math.min(count, list.length - shown)} more</button></div>}
     </section>
   );
 }

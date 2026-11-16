@@ -26,6 +26,7 @@ export default function CarPage() {
   const { id } = useParams(), real = id.startsWith("ebay-");
   const item = useEbay(real ? id : ""), l = real ? (item?.id ? item : null) : byId[id];
   const [photo, setPhoto] = useState(0);
+  useEffect(() => { if (item?.title) document.title = item.title + " · Carlo"; }, [item]); // the server doesn't know a real car's name
   const { apr, short, toggleShort } = useCarlo();
   const [down, setDown] = useState(DOWN);
   const [term, setTerm] = useState(TERM);
