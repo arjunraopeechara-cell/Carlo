@@ -27,7 +27,7 @@ export async function GET(request) {
   const cache = { headers: { "Cache-Control": "public, s-maxage=600, stale-while-revalidate=3600" } };
   try {
     const one = /^ebay-\d{6,20}$/.test(p.get("id") || "") && p.get("id");
-    const url = one ? itemUrl(one) : searchUrl({ make: clean("make"), model: clean("model"), max: num("max"), type: clean("type"), fuel: clean("fuel"), miles: num("miles"), year: num("year"), sort: clean("sort") });
+    const url = one ? itemUrl(one) : searchUrl({ make: clean("make"), model: clean("model"), max: num("max"), type: clean("type"), fuel: clean("fuel"), miles: num("miles"), year: num("year"), sort: clean("sort"), min: num("min"), everyday: p.get("everyday") === "1" });
     const res = await fetch(url, { headers: { Authorization: "Bearer " + (await getToken(id, secret)), "X-EBAY-C-MARKETPLACE_ID": "EBAY_MOTORS_US" } });
     const data = await res.json();
     if (one && res.status === 404) return Response.json({ gone: true }, { status: 404 });

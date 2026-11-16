@@ -27,14 +27,14 @@ export function EbayCard({ i }) {
 export default function EbayRow({ sv = {}, max = 0, title = "For sale now", count = 12 }) {
   const [items, setItems] = useState([]);
   const [shown, setShown] = useState(count);
-  const { make = "", model = "", type = "", fuel = "", miles = 0, year = 0, sort = "" } = sv;
+  const { make = "", model = "", type = "", fuel = "", miles = 0, year = 0, sort = "", min = 0, everyday = "" } = sv;
   useEffect(() => {
     const stop = new AbortController();
-    const q = new URLSearchParams({ make, model, type, fuel, miles, year, sort, max: Number.isFinite(max) ? Math.round(max) : 0 });
+    const q = new URLSearchParams({ make, model, type, fuel, miles, year, sort, min, everyday, max: Number.isFinite(max) ? Math.round(max) : 0 });
     setShown(count);
     fetch("/api/ebay?" + q, { signal: stop.signal }).then((r) => r.json()).then((d) => setItems(d.items || [])).catch(() => {});
     return () => stop.abort();
-  }, [make, model, type, fuel, miles, year, sort, max, count]);
+  }, [make, model, type, fuel, miles, year, sort, min, everyday, max, count]);
 
   if (!items.length) return null;
   const list = sort === "newest" ? [...items].sort((a, b) => b.year - a.year) : items;
